@@ -6,33 +6,48 @@ class NegociacaoController {
         this._inputQuantidade = $('#quantidade');
         this._inputValor = $('#valor');
 
+        this._listaNegociacoes = new Bind(
+            new ListaNegociacoes(),
+            new NegociacoesView($('#negociacoesView')),
+            'add', 'esvazia'
+        );
 
-        // this._listaNegociacoes = new ListaNegociacoes(model =>
-        //     this._negociacoesView.update(model));
-
-        this._negociacoesView = new NegociacoesView($('#negociacoesView'));
-        
-        
-        this._mensagem = new Mensagem();
-        this._mensagemView = new MensagemView($('#mensagemView'));
-        this._mensagemView.update(this._mensagem);
+        this._mensagem = new Bind(
+            new Mensagem(),
+            new MensagemView($('#mensagemView')),
+            'texto'
+        );
     }
 
     apaga() {
         this._listaNegociacoes.esvazia();
         this._mensagem.texto = "Negociações apagadas com sucesso!"
-        this._mensagemView.update(this._mensagem);
     }
     
     adiciona(event){
         event.preventDefault();
         this._listaNegociacoes.add(this._criaNegociacao());
-        
-
         this._mensagem.texto = "Negociação adicionada com sucesso!";
-        this._mensagemView.update(this._mensagem);
-
         this._limpaFormulario();
+    }
+
+    importaNegociacoes() {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', 'negociacoes/semana');
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState == 4) {
+                if(xhr.status == 200) {
+                    JSON.parse(xhr.responseText)
+                        .map(objeto => new Negociacao(new Date(objeto.data), objeto.quantidade, objeto.valor))
+                            .forEach(negociacao => this._listaNegociacoes.add(negociacao));
+                    this._mensagem.texto = 'Negociações importadas com sucesso.';
+                } else {
+                    console.log(xhr.responseText);
+                    this._mensagem.texto = 'Não foi possível obter as negociações do servidor.';
+                }
+            }
+        }
+        xhr.send();
     }
 
     _criaNegociacao() {
