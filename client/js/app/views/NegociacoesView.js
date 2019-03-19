@@ -1,6 +1,6 @@
 class NegociacoesView extends View {
 
-    constructor(elemento){
+    constructor(elemento) {
         super(elemento);
     }
 
@@ -9,10 +9,10 @@ class NegociacoesView extends View {
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
-                    <th>DATA</th>
-                    <th>QUANTIDADE</th>
-                    <th>VALOR</th>
-                    <th>VOLUME</th>
+                    <th onclick="negociacaoController.ordena('data')">DATA</th>
+                    <th onclick="negociacaoController.ordena('quantidade')">QUANTIDADE</span></th>
+                    <th onclick="negociacaoController.ordena('valor')">VALOR</th>
+                    <th onclick="negociacaoController.ordena('volume')">VOLUME</th>
                 </tr>
             </thead>
             <tbody>
