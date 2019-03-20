@@ -1,8 +1,10 @@
 let ConnectionFactory = (function () {
-    let stores = ['negociacoes'];
-    let version = 4;
-    let dbName = 'aluraframe';
+    const STORES = ['negociacoes'];
+    const VERSION = 4;
+    const DBNAME = 'aluraframe';
+
     let connection = null;
+    let close = null;
     
     return class ConnectionFactory {
     
@@ -12,13 +14,14 @@ let ConnectionFactory = (function () {
         
         static getConnection(){
             return new Promise((resolve, reject) => {
-                let openRequest = window.indexedDB.open(dbName, version);
+                let openRequest = window.indexedDB.open(DBNAME, VERSION);
                 openRequest.onupgradeneeded = e => {
                     ConnectionFactory._createConnection(e.target.result);
                 };
                 openRequest.onsuccess = e => {
                     if(!connection){
                         connection = e.target.result;
+                        close = connection.close;
                         connection.close = function() {
                             throw new Error('A conexão não pode ser fechada diretamente.');
                         };
@@ -33,7 +36,7 @@ let ConnectionFactory = (function () {
         }
     
         static _createConnection(connection){
-            stores.forEach(store => {
+            STORES.forEach(store => {
                 if (connection.objectStoreNames.contains(store)) {
                     connection.deleteObjectStore(store);
                 }
@@ -43,7 +46,7 @@ let ConnectionFactory = (function () {
 
         static closeConnection(){
             if(connection){
-                connection.close();
+                close;
                 connection = null;
             }
         }
